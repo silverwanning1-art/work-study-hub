@@ -13,7 +13,7 @@
 
 - **Zweck:** Persönliches System zum Studieren und Arbeiten (Plugin-Architektur): führt RAG, Obsidian-Vault, Agenten und Rechnungen für freiberufliche Projekte in einer Oberfläche zusammen, für Silver.
 - **Schutzstufe:** `STUFE 2` → Regeln je Stufe: `docs/playbook/stufen.md`
-- **Owner:** Silver, Vertretung: offen
+- **Owner:** Silver, keine Vertretung
 - **Daten:** Ja, personenbezogen (Rechnungsempfänger, Adressen, Steuernummer). Nur im gitignorierten `data/`-Ordner bzw. SQLite-Volume, nie im Repo.
 - **Compliance-Rahmen:** keiner
 

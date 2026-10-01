@@ -1,18 +1,18 @@
 # Pflicht-Reviewer für sensible Bereiche.
-# Platzhalter durch echte GitHub-Nutzer oder Teams ersetzen (z. B. @firma/security).
+# Einzelner Owner, kein Security-Team vorhanden.
 # Wirksam erst mit Branch-Schutz-Regel "Require review from Code Owners".
 
 # Standard: Owner der App
-*                       @<owner>
+*                       @silverwanning1-art
 
 # Sicherheitsrelevantes zusätzlich durch Security/IT
-/.github/               @<owner> @<security-team>
-/Dockerfile             @<owner> @<security-team>
-/docker-compose*.yml    @<owner> @<security-team>
-/src/**/auth*           @<owner> @<security-team>
-/src/**/config*         @<owner> @<security-team>
+/.github/               @silverwanning1-art
+/Dockerfile             @silverwanning1-art
+/docker-compose*.yml    @silverwanning1-art
+/src/**/auth*           @silverwanning1-art
+/src/**/config*         @silverwanning1-art
 
 # Playbook-Änderungen
-/AGENTS.md              @<owner>
-/CLAUDE.md              @<owner>
-/docs/playbook/         @<owner>
+/AGENTS.md              @silverwanning1-art
+/CLAUDE.md              @silverwanning1-art
+/docs/playbook/         @silverwanning1-art
