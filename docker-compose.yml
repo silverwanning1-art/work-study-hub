@@ -1,0 +1,32 @@
+# Only Caddy publishes a port, and only on 127.0.0.1.
+# The RAG server and other host services keep their ports (5173, 5174, 5678, 8000, 8002, 8080, 8765).
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${HUB_HTTP_PORT:-80}:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - core
+      - frontend
+
+  core:
+    build: .
+    restart: unless-stopped
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./plugins:/app/plugins:ro
+      - ./agents:/app/agents:ro
+    depends_on:
+      - source-hello
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+
+  source-hello:
+    build: ./plugins/source-hello
+    restart: unless-stopped

@@ -1,0 +1,6 @@
+# Copy to compose.override.yml (gitignored) for local tweaks, e.g. a different host port.
+# Later phases mount the Obsidian vault and Goodnotes backup read-only here.
+services:
+  caddy:
+    ports: !override
+      - "127.0.0.1:8081:80"
