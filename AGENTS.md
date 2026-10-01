@@ -11,11 +11,11 @@
 
 ## 1. Projektkontext (beim Projektstart ausfüllen)
 
-- **Zweck:** <Ein Satz: welches Problem löst die App, für wen?>
-- **Schutzstufe:** `STUFE 1` <1 = persönlich · 2 = Team · 3 = produktiv> → Regeln je Stufe: `docs/playbook/stufen.md`
-- **Owner:** <Name, Vertretung>
-- **Daten:** <Welche Daten verarbeitet die App? Personenbezogen ja/nein?>
-- **Compliance-Rahmen:** <keiner · ISO 27001 · SOC 2 · NIS2 · intern> → bei Eintrag gilt `docs/playbook/compliance.md`
+- **Zweck:** Persönliches System zum Studieren und Arbeiten (Plugin-Architektur): führt RAG, Obsidian-Vault, Agenten und Rechnungen für freiberufliche Projekte in einer Oberfläche zusammen, für Silver.
+- **Schutzstufe:** `STUFE 2` → Regeln je Stufe: `docs/playbook/stufen.md`
+- **Owner:** Silver, keine Vertretung
+- **Daten:** Ja, personenbezogen (Rechnungsempfänger, Adressen, Steuernummer). Nur im gitignorierten `data/`-Ordner bzw. SQLite-Volume, nie im Repo.
+- **Compliance-Rahmen:** keiner
 
 Fehlen diese Angaben, frage zuerst danach.
 

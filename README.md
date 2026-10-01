@@ -1,43 +1,41 @@
-# KI-Coding-Playbook
+# Hub
 
-Regeln, damit KI-Coding-Agents (Claude Code, Codex, GitHub Copilot) nachvollziehbar, sicher und einheitlich arbeiten.
+Persönliches System zum Studieren und Arbeiten mit Plugin-Architektur (Quellen, Aktionen, Agenten, Kanäle) in einer Oberfläche. Projektplan: `Hub-System Projektplan.md`.
 
-## Verwendung
+Arbeitsregeln für KI-Agents und Menschen: `AGENTS.md` und `docs/playbook/`.
 
-1. Inhalt dieses Ordners in ein neues Repo kopieren (oder das Repo als Template nutzen).
-2. In `AGENTS.md` Abschnitt 1 den Projektkontext ausfüllen, vor allem die **Schutzstufe**.
-3. Fertig: Die Tools lesen ihre Datei automatisch.
+## Setup
 
-| Tool | Liest |
-|---|---|
-| Codex | `AGENTS.md` |
-| Claude Code | `CLAUDE.md` (bindet `AGENTS.md` per `@AGENTS.md` ein) |
-| GitHub Copilot | `.github/copilot-instructions.md` (verweist auf `AGENTS.md`) |
-
-Welche Dateien die Tools lesen, ändert sich gerade häufig – vor Einsatz kurz in der jeweiligen Doku prüfen.
-
-## Aufbau
-
-```
-AGENTS.md                         Kern-Playbook (immer geladen, kurz halten)
-CLAUDE.md                         Ergänzungen für Claude Code
-.github/copilot-instructions.md   Ergänzungen für Copilot
-.github/pull_request_template.md  PR-Vorlage
-.github/CODEOWNERS                Pflicht-Reviewer (Platzhalter ersetzen)
-docs/playbook/stufen.md           Was je Schutzstufe zusätzlich gilt
-docs/playbook/security.md         Security-Details, CI-Checks
-docs/playbook/git-workflow.md     Branches, Commits, Verbote
-docs/playbook/hosting.md          Dockerfile, Compose, SSO, Deployment
-docs/playbook/compliance.md       Nachweise für ISO 27001, SOC 2, NIS2
-docs/decisions.md                 Entscheidungslog des Projekts
+```bash
+uv sync
+cp .env.example .env
 ```
 
-## Wichtig
+## Start
 
-Das Playbook ist **weich**: Die KI hält sich meistens daran, aber nicht garantiert. Alles Kritische muss zusätzlich **hart** in der CI geprüft werden (Vorlage in `docs/playbook/security.md`).
+```bash
+uv run uvicorn hub.main:app --reload
+```
 
-Das Playbook macht kein Unternehmen ISO-27001-zertifiziert oder SOC-2-konform. Es erzeugt die Nachweise, die solche Audits für den Entwicklungsprozess verlangen. Details: `docs/playbook/compliance.md`.
+Health-Check: `GET http://127.0.0.1:8000/health` → `{"status": "ok"}`
 
-## Weiterentwickeln
+## Umgebungsvariablen
 
-Jedes Mal, wenn die KI etwas falsch macht, das als allgemeine Regel taugt: Regel ergänzen. Das Playbook ist eine Sammlung gelernter Lektionen und gehört versioniert in Git.
+| Variable | Bedeutung | Standard |
+|---|---|---|
+| `LOG_LEVEL` | Log-Level (stdout) | `INFO` |
+
+## Checks und Tests
+
+```bash
+uv run ruff format . && uv run ruff check . --fix
+uv run mypy src
+uv run pytest
+```
+
+## Container
+
+```bash
+docker build -t hub .
+docker run --rm -p 127.0.0.1:8000:8000 hub
+```
