@@ -4,4 +4,6 @@ Kurz festhalten: Was wurde entschieden, warum? Neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
-| <JJJJ-MM-TT> | <z. B. PostgreSQL statt SQLite> | <z. B. mehrere gleichzeitige Nutzer ab Stufe 2> |
+| 2026-10-01 | Abhängigkeiten: `fastapi`, `uvicorn`, `pydantic`, `pydantic-settings` (Laufzeit); `ruff`, `mypy`, `pytest`, `httpx`, `pre-commit` (Dev) | Playbook-Standardstack; `httpx` wird vom FastAPI-TestClient benötigt, `pre-commit` für lokale Checks vor dem Commit |
+| 2026-10-01 | Python-Paket `src/hub/` statt Struktur `core/`, `plugins/` aus dem Projektplan (3.5) | Playbook-Standard (AGENTS.md Abschnitt 4); Plugins kommen später als Unterordner |
+| 2026-10-01 | Schutzstufe 2 | Rechnungen enthalten personenbezogene Kundendaten; im Zweifel die höhere Stufe |
