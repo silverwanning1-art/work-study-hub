@@ -21,3 +21,8 @@ repos:
         entry: uv run pytest -q
         language: system
         pass_filenames: false
+      - id: gitleaks
+        name: gitleaks (staged changes)
+        entry: gitleaks protect --staged --no-banner
+        language: system
+        pass_filenames: false
