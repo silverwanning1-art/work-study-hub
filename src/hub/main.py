@@ -1,11 +1,14 @@
 """FastAPI entry point."""
 
+import base64
+import binascii
 import logging
+import re
 import sys
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
 from hub import mcp_client
@@ -104,3 +107,27 @@ async def confirm_tool_call(confirmation_id: str) -> mcp_client.ToolResult:
         raise HTTPException(status_code=404, detail="Unknown or expired confirmation") from None
     plugin = _plugin_or_404(pending.plugin_id)
     return await _execute(plugin, pending.tool, pending.arguments)
+
+
+INVOICE_PLUGIN_ID = "action-invoice"
+
+
+@app.get("/api/invoices/{invoice_id}/pdf")
+async def download_invoice_pdf(invoice_id: int) -> Response:
+    """Download the PDF of an issued invoice (decoded from the plugin's base64 result)."""
+    plugin = _plugin_or_404(INVOICE_PLUGIN_ID)
+    result = await _execute(plugin, "get_invoice_pdf", {"invoice_id": invoice_id})
+    data = result.structured or {}
+    try:
+        content = base64.b64decode(str(data.get("content_base64", "")), validate=True)
+    except binascii.Error:
+        content = b""
+    if result.is_error or not content:
+        raise HTTPException(status_code=404, detail="PDF not available")
+    # The plugin controls the name; keep only safe characters for the header.
+    filename = re.sub(r"[^A-Za-z0-9._-]", "_", str(data.get("filename", "invoice.pdf")))
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

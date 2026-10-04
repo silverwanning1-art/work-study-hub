@@ -1,3 +1,4 @@
+import base64
 from collections.abc import Iterator
 from typing import Any
 
@@ -20,6 +21,7 @@ MANIFEST = {
     "mcp": {"url": "http://source-hello:8000/mcp"},
     "tools": [
         {"name": "hello"},
+        {"name": "get_invoice_pdf"},
         {"name": "write_thing", "writes": True, "requires_confirmation": True},
     ],
 }
@@ -32,6 +34,15 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
     @server.tool()
     def hello(name: str) -> str:
         return f"Hello, {name}!"
+
+    @server.tool()
+    def get_invoice_pdf(invoice_id: int) -> dict[str, str]:
+        if invoice_id == 2:
+            return {
+                "filename": "../evil name.pdf",
+                "content_base64": base64.b64encode(b"%PDF-x").decode(),
+            }
+        return {"filename": "x.pdf", "content_base64": ""}
 
     @server.tool()
     def write_thing(value: str) -> str:
@@ -50,7 +61,7 @@ def test_list_tools(client: TestClient) -> None:
     response = client.get("/api/plugins/source-hello/tools")
 
     assert response.status_code == 200
-    assert {t["name"] for t in response.json()} == {"hello", "write_thing"}
+    assert {t["name"] for t in response.json()} == {"hello", "get_invoice_pdf", "write_thing"}
 
 
 def test_call_tool(client: TestClient) -> None:
@@ -118,3 +129,27 @@ def test_unreachable_plugin_gives_generic_502(
 
     assert response.status_code == 502
     assert response.json() == {"detail": "Plugin unavailable"}
+
+
+@pytest.fixture
+def invoice_client(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> TestClient:
+    manifest = PluginManifest.model_validate(MANIFEST | {"id": "action-invoice"})
+    monkeypatch.setattr(main, "registry", Registry(plugins=[manifest]))
+    return client
+
+
+def test_invoice_pdf_download_decodes_and_sanitizes_filename(invoice_client: TestClient) -> None:
+    response = invoice_client.get("/api/invoices/2/pdf")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.content == b"%PDF-x"
+    assert response.headers["content-disposition"] == 'attachment; filename=".._evil_name.pdf"'
+
+
+def test_invoice_pdf_missing_gives_404(invoice_client: TestClient) -> None:
+    assert invoice_client.get("/api/invoices/1/pdf").status_code == 404
+
+
+def test_invoice_pdf_without_plugin_gives_404(client: TestClient) -> None:
+    assert client.get("/api/invoices/2/pdf").status_code == 404
