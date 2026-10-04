@@ -12,4 +12,8 @@ tools:
   - name: save_customer
   - name: list_projects
   - name: save_project
+  - name: list_invoices
+  - name: get_invoice
+  - name: save_invoice_draft
+  - name: delete_invoice_draft
 secrets: []

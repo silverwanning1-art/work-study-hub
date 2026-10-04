@@ -7,16 +7,34 @@ from typing import NoReturn
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-from action_invoice.errors import NotFoundError
-from action_invoice.models import Customer, Profile, Project
+from action_invoice import calc
+from action_invoice.errors import (
+    ImmutableInvoiceError,
+    InvalidInputError,
+    NotFoundError,
+)
+from action_invoice.models import (
+    Customer,
+    Invoice,
+    InvoiceItem,
+    InvoiceStatus,
+    Profile,
+    Project,
+)
 from action_invoice.schemas import (
     CustomerIn,
     CustomerList,
     CustomerOut,
+    InvoiceDraftIn,
+    InvoiceList,
+    InvoiceOut,
+    ItemOut,
     ProfileData,
     ProjectIn,
     ProjectList,
     ProjectOut,
+    TaxLine,
+    TotalsOut,
 )
 
 PROFILE_ID = 1
@@ -102,6 +120,129 @@ class InvoiceService:
             session.add(project)
             session.flush()
             return ProjectOut.model_validate(project, from_attributes=True)
+
+    # --- invoices ---
+
+    def list_invoices(self, status: str | None = None) -> InvoiceList:
+        """Return invoices, newest first, optionally filtered by status."""
+        with self._sessions() as session:
+            query = select(Invoice).order_by(Invoice.id.desc())
+            if status is not None:
+                query = query.where(Invoice.status == status)
+            rows = session.scalars(query).all()
+            exempt = self._is_exempt(session)
+            return InvoiceList(invoices=[_to_out(session, i, exempt) for i in rows])
+
+    def get_invoice(self, invoice_id: int) -> InvoiceOut:
+        """Return one invoice."""
+        with self._sessions() as session:
+            invoice = session.get(Invoice, invoice_id) or _missing("Rechnung")
+            return _to_out(session, invoice, self._is_exempt(session))
+
+    def save_draft(self, data: InvoiceDraftIn) -> InvoiceOut:
+        """Create a draft, or replace an existing draft completely."""
+        if (
+            data.service_start is not None
+            and data.service_end is not None
+            and data.service_end < data.service_start
+        ):
+            raise InvalidInputError("Das Leistungsende liegt vor dem Leistungsbeginn")
+        with self._sessions.begin() as session:
+            if session.get(Customer, data.customer_id) is None:
+                _missing("Kunde")
+            if data.project_id is not None:
+                project = session.get(Project, data.project_id) or _missing("Projekt")
+                if project.customer_id != data.customer_id:
+                    raise InvalidInputError("Das Projekt gehört nicht zu diesem Kunden")
+            if data.id is None:
+                invoice = Invoice(customer_id=data.customer_id)
+            else:
+                invoice = session.get(Invoice, data.id) or _missing("Rechnung")
+                if invoice.status != InvoiceStatus.DRAFT:
+                    raise ImmutableInvoiceError(
+                        "Eine ausgestellte Rechnung kann nicht mehr geändert werden"
+                    )
+            invoice.customer_id = data.customer_id
+            invoice.project_id = data.project_id
+            invoice.issue_date = data.issue_date
+            invoice.service_start = data.service_start
+            invoice.service_end = data.service_end
+            invoice.note = data.note
+            invoice.items = [
+                InvoiceItem(
+                    position=position,
+                    description=item.description,
+                    quantity_milli=int(item.quantity * 1000),
+                    unit=item.unit,
+                    unit_price_cents=int(item.unit_price * 100),
+                    tax_rate_percent=item.tax_rate_percent,
+                )
+                for position, item in enumerate(data.items, start=1)
+            ]
+            session.add(invoice)
+            session.flush()
+            return _to_out(session, invoice, self._is_exempt(session))
+
+    def delete_draft(self, invoice_id: int) -> None:
+        """Delete a draft. Issued invoices can never be deleted."""
+        with self._sessions.begin() as session:
+            invoice = session.get(Invoice, invoice_id) or _missing("Rechnung")
+            if invoice.status != InvoiceStatus.DRAFT:
+                raise ImmutableInvoiceError("Nur Entwürfe können gelöscht werden")
+            session.delete(invoice)
+
+    @staticmethod
+    def _is_exempt(session: Session) -> bool:
+        profile = session.get(Profile, PROFILE_ID)
+        return profile is not None and bool(profile.tax_exemption_note.strip())
+
+
+def _to_out(session: Session, invoice: Invoice, exempt: bool) -> InvoiceOut:
+    lines = [
+        calc.Line(i.quantity_milli, i.unit_price_cents, i.tax_rate_percent) for i in invoice.items
+    ]
+    totals = calc.compute_totals(lines, exempt=exempt)
+    items = [
+        ItemOut(
+            position=i.position,
+            description=i.description,
+            quantity=calc.milli_to_str(i.quantity_milli),
+            unit=i.unit,
+            unit_price=calc.cents_to_str(i.unit_price_cents),
+            tax_rate_percent=0 if exempt else i.tax_rate_percent,
+            net=calc.cents_to_str(calc.line_net_cents(line)),
+        )
+        for i, line in zip(invoice.items, lines, strict=True)
+    ]
+    cancelled = (
+        session.get(Invoice, invoice.cancels_invoice_id) if invoice.cancels_invoice_id else None
+    )
+    return InvoiceOut(
+        id=invoice.id,
+        status=str(invoice.status),
+        number=invoice.number,
+        customer_id=invoice.customer_id,
+        project_id=invoice.project_id,
+        issue_date=invoice.issue_date,
+        service_start=invoice.service_start,
+        service_end=invoice.service_end,
+        note=invoice.note,
+        items=items,
+        totals=TotalsOut(
+            net=calc.cents_to_str(totals.net_cents),
+            tax_lines=[
+                TaxLine(
+                    tax_rate_percent=g.tax_rate_percent,
+                    net=calc.cents_to_str(g.net_cents),
+                    tax=calc.cents_to_str(g.tax_cents),
+                )
+                for g in totals.groups
+            ],
+            tax=calc.cents_to_str(totals.tax_cents),
+            gross=calc.cents_to_str(totals.gross_cents),
+        ),
+        cancels_number=cancelled.number if cancelled else None,
+    )
 
 
 def _missing(what: str) -> NoReturn:

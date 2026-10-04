@@ -23,3 +23,7 @@ class IncompleteInvoiceError(InvoiceError):
     def __init__(self, problems: list[str]) -> None:
         super().__init__("Rechnung unvollständig: " + "; ".join(problems))
         self.problems = problems
+
+
+class InvalidInputError(InvoiceError):
+    """The input is syntactically valid but makes no sense (e.g. end before start)."""

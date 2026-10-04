@@ -13,6 +13,9 @@ from action_invoice.schemas import (
     CustomerIn,
     CustomerList,
     CustomerOut,
+    InvoiceDraftIn,
+    InvoiceList,
+    InvoiceOut,
     ProfileData,
     ProjectIn,
     ProjectList,
@@ -54,6 +57,27 @@ def build_server(service: InvoiceService) -> MCPServer:
     def save_project(project: ProjectIn) -> ProjectOut:
         """Create a project, or update it when ``id`` is set."""
         return service.save_project(project)
+
+    @server.tool()
+    def list_invoices(status: str | None = None) -> InvoiceList:
+        """List invoices (newest first), optionally only one status."""
+        return service.list_invoices(status)
+
+    @server.tool()
+    def get_invoice(invoice_id: int) -> InvoiceOut:
+        """Return one invoice with items and totals."""
+        return service.get_invoice(invoice_id)
+
+    @server.tool()
+    def save_invoice_draft(draft: InvoiceDraftIn) -> InvoiceOut:
+        """Create a draft, or replace the draft with the given id. Drafts are freely editable."""
+        return service.save_draft(draft)
+
+    @server.tool()
+    def delete_invoice_draft(invoice_id: int) -> dict[str, bool]:
+        """Delete a draft. Issued invoices cannot be deleted."""
+        service.delete_draft(invoice_id)
+        return {"deleted": True}
 
     @server.custom_route("/health", methods=["GET"])  # type: ignore[untyped-decorator]
     async def health(_request: Request) -> JSONResponse:

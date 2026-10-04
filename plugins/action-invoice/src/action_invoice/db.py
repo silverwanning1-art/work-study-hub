@@ -6,6 +6,7 @@ from sqlalchemy import Engine, create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from action_invoice import guards  # noqa: F401  (registers the flush guard)
 from action_invoice.models import Base
 
 
