@@ -1,0 +1,15 @@
+id: action-invoice
+type: action
+version: 0.1.0
+description: Rechnungen für freiberufliche Projekte erstellen und verwalten
+workspaces: [arbeit]
+mcp:
+  url: http://action-invoice:8000/mcp
+tools:
+  - name: get_profile
+  - name: save_profile
+  - name: list_customers
+  - name: save_customer
+  - name: list_projects
+  - name: save_project
+secrets: []

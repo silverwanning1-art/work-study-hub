@@ -22,6 +22,7 @@ services:
       - ./agents:/app/agents:ro
     depends_on:
       - source-hello
+      - action-invoice
 
   frontend:
     build: ./frontend
@@ -30,3 +31,16 @@ services:
   source-hello:
     build: ./plugins/source-hello
     restart: unless-stopped
+
+  action-invoice:
+    build: ./plugins/action-invoice
+    restart: unless-stopped
+    environment:
+      INVOICE_DB_PATH: /data/invoice.sqlite
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      # Personal data (customers, invoices) lives only in this volume, never in the repo.
+      - invoice-data:/data
+
+volumes:
+  invoice-data:
