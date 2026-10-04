@@ -26,6 +26,10 @@ testpaths = ["tests"]
 strict = true
 files = ["src"]
 
+[[tool.mypy.overrides]]
+module = ["weasyprint", "weasyprint.*"]
+ignore_missing_imports = true  # WeasyPrint ships no type information
+
 [dependency-groups]
 dev = [
     "mypy>=2.4.0",

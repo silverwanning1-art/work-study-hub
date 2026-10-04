@@ -160,3 +160,10 @@ class InvoiceList(BaseModel):
     """Invoices with their totals."""
 
     invoices: list[InvoiceOut]
+
+
+class PdfFile(BaseModel):
+    """A PDF transferred through MCP as base64."""
+
+    filename: str
+    content_base64: str

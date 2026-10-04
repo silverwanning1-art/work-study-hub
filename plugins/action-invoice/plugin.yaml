@@ -16,4 +16,14 @@ tools:
   - name: get_invoice
   - name: save_invoice_draft
   - name: delete_invoice_draft
+  - name: get_invoice_pdf
+  - name: issue_invoice
+    writes: true
+    requires_confirmation: true
+  - name: mark_paid
+    writes: true
+    requires_confirmation: true
+  - name: cancel_invoice
+    writes: true
+    requires_confirmation: true
 secrets: []
