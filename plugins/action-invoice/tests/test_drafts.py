@@ -49,7 +49,7 @@ def test_exemption_note_sets_tax_to_zero(service: InvoiceService, customer_id: i
     draft = service.save_draft(InvoiceDraftIn(customer_id=customer_id, items=[item()]))
 
     assert (draft.totals.tax, draft.totals.gross) == ("0.00", "200.00")
-    assert draft.items[0].tax_rate_percent == 0
+    assert draft.items[0].tax_rate_percent == 19  # entered rate stays editable
 
 
 def test_unknown_customer_is_rejected(service: InvoiceService) -> None:

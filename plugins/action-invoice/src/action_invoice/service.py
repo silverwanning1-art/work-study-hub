@@ -384,7 +384,8 @@ def _to_out(session: Session, invoice: Invoice, exempt: bool) -> InvoiceOut:
             quantity=calc.milli_to_str(i.quantity_milli),
             unit=i.unit,
             unit_price=calc.cents_to_str(i.unit_price_cents),
-            tax_rate_percent=0 if exempt else i.tax_rate_percent,
+            # The entered rate, so editing a draft never overwrites it; totals apply exemption.
+            tax_rate_percent=i.tax_rate_percent,
             net=calc.cents_to_str(calc.line_net_cents(line)),
         )
         for i, line in zip(invoice.items, lines, strict=True)
