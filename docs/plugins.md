@@ -13,3 +13,7 @@
 Ordner `agents/<id>/` mit `agent.yaml` und der dort genannten Prompt-Datei anlegen. Kein Code nötig. Der Kern lädt Manifeste beim Start; nach Änderungen den Container `core` neu starten.
 
 Prüfen: `GET http://hub.localhost/api/registry`.
+
+## Schreibende Tools
+
+Tools mit `writes: true` führt der Kern erst nach Bestätigung aus: `POST /api/plugins/{id}/tools/{tool}/call` antwortet mit `202` und einer `confirmation_id`, `POST /api/confirmations/{id}/confirm` führt sie aus (einmalig, 5 Minuten gültig). Beispiel: `plugins/action-invoice/`, Hintergrund in `docs/adr/ADR-002-invoice-model.md`.
