@@ -1,0 +1,11 @@
+id: source-hello
+type: source
+version: 0.1.0
+description: Example plugin that greets by name; proves the plugin mechanism end to end
+workspaces: [global]
+mcp:
+  url: http://source-hello:8000/mcp
+tools:
+  - name: hello
+    writes: false
+secrets: []

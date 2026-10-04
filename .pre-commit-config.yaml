@@ -11,3 +11,18 @@ repos:
         entry: uv run ruff check .
         language: system
         pass_filenames: false
+      - id: mypy
+        name: mypy
+        entry: uv run mypy src
+        language: system
+        pass_filenames: false
+      - id: pytest
+        name: pytest
+        entry: uv run pytest -q
+        language: system
+        pass_filenames: false
+      - id: gitleaks
+        name: gitleaks (staged changes)
+        entry: gitleaks protect --staged --no-banner
+        language: system
+        pass_filenames: false

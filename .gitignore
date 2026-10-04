@@ -31,3 +31,6 @@ build/
 
 # Personal data (invoices, customers)
 data/
+
+# Local compose overrides
+compose.override.yml
