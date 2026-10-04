@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>{{ title }} {{ inv.number }}</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 25mm 22mm;
+    @bottom-center { content: "Seite " counter(page) " von " counter(pages); font-size: 8pt; color: #555; } }
+  body { font-family: "DejaVu Sans", sans-serif; font-size: 9.5pt; color: #111; line-height: 1.35; }
+  .sender-line { font-size: 7pt; color: #555; border-bottom: 0.3pt solid #999; padding-bottom: 1mm; margin-bottom: 4mm; }
+  .recipient { min-height: 32mm; }
+  h1 { font-size: 15pt; margin: 8mm 0 3mm; }
+  table { width: 100%; border-collapse: collapse; }
+  .meta td { padding: 0.6mm 0; vertical-align: top; }
+  .meta td:first-child { width: 42mm; color: #555; }
+  .items { margin-top: 6mm; }
+  .items th { text-align: left; border-bottom: 0.6pt solid #111; padding: 1.5mm 1mm; font-size: 8.5pt; }
+  .items td { padding: 1.5mm 1mm; border-bottom: 0.3pt solid #ccc; vertical-align: top; }
+  .num { text-align: right; white-space: nowrap; }
+  .totals { width: 75mm; margin: 5mm 0 0 auto; }
+  .totals td { padding: 0.8mm 1mm; }
+  .totals .gross td { border-top: 0.6pt solid #111; font-weight: bold; padding-top: 1.5mm; }
+  .note { margin-top: 6mm; }
+  .footer { margin-top: 10mm; font-size: 8.5pt; color: #333; }
+</style>
+</head>
+<body>
+  <div class="sender-line">{{ inv.seller.name }} · {{ inv.seller.street }} · {{ inv.seller.postal_code }} {{ inv.seller.city }}</div>
+  <div class="recipient">
+    {{ inv.buyer.name }}<br>
+    {{ inv.buyer.street }}<br>
+    {{ inv.buyer.postal_code }} {{ inv.buyer.city }}{% if inv.buyer.country and inv.buyer.country != "Deutschland" %}<br>{{ inv.buyer.country }}{% endif %}
+  </div>
+
+  <h1>{{ title }}</h1>
+  <table class="meta">
+    <tr><td>{{ title }}snummer</td><td>{{ inv.number }}</td></tr>
+    <tr><td>Rechnungsdatum</td><td>{{ inv.issue_date | de_date }}</td></tr>
+    <tr><td>Leistungszeitraum</td><td>{% if inv.service_start == inv.service_end %}{{ inv.service_start | de_date }}{% else %}{{ inv.service_start | de_date }} – {{ inv.service_end | de_date }}{% endif %}</td></tr>
+    {% if inv.project_name %}<tr><td>Projekt</td><td>{{ inv.project_name }}</td></tr>{% endif %}
+    {% if inv.cancels_number %}<tr><td>Storno zu</td><td>Rechnung {{ inv.cancels_number }}</td></tr>{% endif %}
+    {% if inv.buyer.vat_id %}<tr><td>USt-IdNr. Empfänger</td><td>{{ inv.buyer.vat_id }}</td></tr>{% endif %}
+  </table>
+
+  <table class="items">
+    <thead><tr>
+      <th>Pos.</th><th>Beschreibung</th><th class="num">Menge</th><th>Einheit</th>
+      <th class="num">Einzelpreis</th><th class="num">USt</th><th class="num">Netto</th>
+    </tr></thead>
+    <tbody>
+    {% for item in inv.items %}
+      <tr>
+        <td>{{ item.position }}</td>
+        <td>{{ item.description }}</td>
+        <td class="num">{{ item.quantity_milli | qty }}</td>
+        <td>{{ item.unit }}</td>
+        <td class="num">{{ item.unit_price_cents | eur }}</td>
+        <td class="num">{{ item.tax_rate_percent }} %</td>
+        <td class="num">{{ item.net_cents | eur }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="totals">
+    <tr><td>Nettobetrag</td><td class="num">{{ totals.net_cents | eur }}</td></tr>
+    {% for group in totals.groups if group.tax_rate_percent > 0 %}
+      <tr><td>zzgl. {{ group.tax_rate_percent }} % USt auf {{ group.net_cents | eur }}</td><td class="num">{{ group.tax_cents | eur }}</td></tr>
+    {% endfor %}
+    <tr class="gross"><td>Gesamtbetrag</td><td class="num">{{ totals.gross_cents | eur }}</td></tr>
+  </table>
+
+  {% if inv.exemption_note %}<p class="note">{{ inv.exemption_note }}</p>{% endif %}
+  {% if inv.note %}<p class="note">{{ inv.note }}</p>{% endif %}
+  {% if not inv.cancels_number %}
+    <p class="note">Bitte überweisen Sie den Gesamtbetrag bis zum {{ due_date | de_date }}{% if inv.seller.iban %} auf das unten genannte Konto{% endif %}.</p>
+  {% endif %}
+
+  <div class="footer">
+    {{ inv.seller.name }} · {{ inv.seller.street }} · {{ inv.seller.postal_code }} {{ inv.seller.city }}<br>
+    {% if inv.seller.tax_number %}Steuernummer: {{ inv.seller.tax_number }}{% endif %}
+    {% if inv.seller.tax_number and inv.seller.vat_id %} · {% endif %}
+    {% if inv.seller.vat_id %}USt-IdNr.: {{ inv.seller.vat_id }}{% endif %}<br>
+    {% if inv.seller.email %}{{ inv.seller.email }}{% endif %}{% if inv.seller.phone %} · {{ inv.seller.phone }}{% endif %}<br>
+    {% if inv.seller.iban %}{% if inv.seller.bank_name %}{{ inv.seller.bank_name }} · {% endif %}IBAN {{ inv.seller.iban }}{% if inv.seller.bic %} · BIC {{ inv.seller.bic }}{% endif %}{% endif %}
+  </div>
+</body>
+</html>
