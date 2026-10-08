@@ -22,6 +22,7 @@ services:
       - ./agents:/app/agents:ro
     depends_on:
       - source-hello
+      - source-rag
       - action-invoice
 
   frontend:
@@ -31,6 +32,15 @@ services:
   source-hello:
     build: ./plugins/source-hello
     restart: unless-stopped
+
+  source-rag:
+    build: ./plugins/source-rag
+    restart: unless-stopped
+    environment:
+      # The RAG server runs on the host (launchd), not in this stack.
+      RAG_URL: ${RAG_URL:-http://host.docker.internal:5678}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   action-invoice:
     build: ./plugins/action-invoice
