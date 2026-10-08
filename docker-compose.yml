@@ -23,6 +23,7 @@ services:
     depends_on:
       - source-hello
       - source-rag
+      - source-vault
       - action-invoice
 
   frontend:
@@ -41,6 +42,18 @@ services:
       RAG_URL: ${RAG_URL:-http://host.docker.internal:5678}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  source-vault:
+    build: ./plugins/source-vault
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    environment:
+      VAULT_PATH: /vault
+      VAULT_NAME: ${VAULT_NAME:-WiIng-Vault}
+    volumes:
+      # ADR-003: the vault is mounted read-only; this plugin can never write to it.
+      - ${VAULT_DIR:-${HOME}/rag_studium/WiIng-Vault}:/vault:ro
 
   action-invoice:
     build: ./plugins/action-invoice

@@ -4,6 +4,7 @@ Kurz festhalten: Was wurde entschieden, warum? Neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-08 | `source-vault`: nur `mcp` als Laufzeit-Abhängigkeit (Standardbibliothek für Dateizugriff), dev: `mypy`, `pytest`. Container mit `read_only: true`, `cap_drop: [ALL]` und Vault-Mount `:ro`; versteckte Ordner (z. B. `.obsidian`), Symlinks und Nicht-`.md`-Dateien sind nie lesbar | ADR-003; Verteidigung in der Tiefe, falls der Mount-Schutz oder die Pfadprüfung allein versagt |
 | 2026-10-08 | Neue Pakete im Plugin `source-rag`: `httpx` (HTTP-Client zum RAG-Server, bereits transitiv durch `mcp`), dev: `mypy`, `pytest`. RAG-Server bleibt unverändert auf dem Host (`127.0.0.1:5678`), Zugriff aus dem Container über `host.docker.internal` | Projektplan Phase 2: wrappen, nicht umschreiben. Namen über `uv lock` aufgelöst |
 | 2026-10-08 | Branch `feat/studium-workspace` für Issue #6; Vault als eigener read-only MCP-Server (ADR-003); Orchestrator erst nach Phase 2 | Entscheidungen von Silver zu Phase 2; Branchname nach AGENTS.md Abschnitt 6 |
 | 2026-10-04 | Neue Pakete im Plugin `action-invoice`: `sqlalchemy` (ORM, parametrisiertes SQL), `jinja2` (Template mit Autoescape), `weasyprint` (PDF, braucht Pango), `pydantic`, `pydantic-settings`, dev: `pytest`, `mypy`; Frontend dev: `vitest` | Playbook-Standardstack (SQLAlchemy, Pydantic); Jinja2/WeasyPrint laut Projektplan 3.4; vitest testet die UI-Logik. Namen und Maintainer über `uv add`/`npm view` geprüft, `pip-audit` und `npm audit --omit=dev` ohne Funde |

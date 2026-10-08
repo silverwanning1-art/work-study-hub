@@ -16,5 +16,6 @@ test:
 	uv run pytest
 	cd plugins/source-hello && uv run pytest
 	cd plugins/source-rag && uv run pytest && uv run mypy
+	cd plugins/source-vault && uv run pytest && uv run mypy
 	cd plugins/action-invoice && uv run pytest && uv run mypy
 	cd frontend && npm run check && npm test

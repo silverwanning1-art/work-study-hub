@@ -1,0 +1,15 @@
+id: source-vault
+type: source
+version: 0.1.0
+description: Durchsucht und liest den Obsidian-Vault (nur lesend)
+workspaces: [studium]
+mcp:
+  url: http://source-vault:8000/mcp
+tools:
+  - name: search
+    writes: false
+  - name: read_note
+    writes: false
+  - name: list_notes
+    writes: false
+secrets: []
