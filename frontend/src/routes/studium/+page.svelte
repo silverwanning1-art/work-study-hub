@@ -20,6 +20,10 @@
 </script>
 
 <h2>Studium</h2>
+<nav aria-label="Studium">
+	<a href="/studium/chat">Lern-Coach</a> |
+	<a href="/studium/vault">Vault</a>
+</nav>
 {#if failed}
 	<p role="alert" class="error">Der Kern ist nicht erreichbar.</p>
 {:else if registry === null}
