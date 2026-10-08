@@ -27,6 +27,7 @@ services:
       - source-rag
       - source-vault
       - action-invoice
+      - action-study
 
   frontend:
     build: ./frontend
@@ -67,5 +68,16 @@ services:
       # Personal data (customers, invoices) lives only in this volume, never in the repo.
       - invoice-data:/data
 
+  action-study:
+    build: ./plugins/action-study
+    restart: unless-stopped
+    environment:
+      STUDY_DB_PATH: /data/study.sqlite
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      # Cards, progress and (later) exams live only in this volume, never in the repo.
+      - study-data:/data
+
 volumes:
   invoice-data:
+  study-data:

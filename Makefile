@@ -18,4 +18,5 @@ test:
 	cd plugins/source-rag && uv run pytest && uv run mypy
 	cd plugins/source-vault && uv run pytest && uv run mypy
 	cd plugins/action-invoice && uv run pytest && uv run mypy
+	cd plugins/action-study && uv run pytest && uv run mypy
 	cd frontend && npm run check && npm test

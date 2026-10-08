@@ -4,6 +4,9 @@ Kurz festhalten: Was wurde entschieden, warum? Neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-09 | Neues Plugin `action-study`: `sqlalchemy`, `pydantic`, `pydantic-settings`, `mcp` (wie `action-invoice`), dev: `mypy`, `pytest`, `pyyaml` (Test prüft `plugin.yaml` gegen die Server-Tools). Abweichung vom Plan: der Lernzustand (fällig, Intervall, Faktor) liegt direkt auf der Karte statt in einer Tabelle `CardState` | Playbook-Standardstack; eine Tabelle weniger, keine 1:1-Beziehung. Namen über `uv add` aufgelöst |
+| 2026-10-09 | `rate_card` ist als `writes: false` deklariert (Ausnahme, ADR-004) | Sonst Bestätigungsdialog pro Karte; Tool steht in keiner Agent-Allowlist |
+| 2026-10-09 | Branch `feat/flashcards` für Issue #8, aufbauend auf `feat/studium-workspace` (PR #7 noch offen) | Paket 2b braucht die Agent-Runtime aus 2a |
 | 2026-10-08 | Neue Abhängigkeit im Kern: `anthropic` 1.12 (offizielles SDK von Anthropic, Existenz beim Installieren über `uv add` verifiziert); Agent-Runtime, Skills und Schreibverbot für Agenten, siehe ADR-004 | Projektplan 3.4 (Claude API als LLM); Agenten brauchen ein Sprachmodell |
 | 2026-10-08 | `source-vault`: nur `mcp` als Laufzeit-Abhängigkeit (Standardbibliothek für Dateizugriff), dev: `mypy`, `pytest`. Container mit `read_only: true`, `cap_drop: [ALL]` und Vault-Mount `:ro`; versteckte Ordner (z. B. `.obsidian`), Symlinks und Nicht-`.md`-Dateien sind nie lesbar | ADR-003; Verteidigung in der Tiefe, falls der Mount-Schutz oder die Pfadprüfung allein versagt |
 | 2026-10-08 | Neue Pakete im Plugin `source-rag`: `httpx` (HTTP-Client zum RAG-Server, bereits transitiv durch `mcp`), dev: `mypy`, `pytest`. RAG-Server bleibt unverändert auf dem Host (`127.0.0.1:5678`), Zugriff aus dem Container über `host.docker.internal` | Projektplan Phase 2: wrappen, nicht umschreiben. Namen über `uv lock` aufgelöst |
