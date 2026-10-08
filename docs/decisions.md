@@ -4,6 +4,7 @@ Kurz festhalten: Was wurde entschieden, warum? Neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-08 | Branch `feat/studium-workspace` für Issue #6; Vault als eigener read-only MCP-Server (ADR-003); Orchestrator erst nach Phase 2 | Entscheidungen von Silver zu Phase 2; Branchname nach AGENTS.md Abschnitt 6 |
 | 2026-10-04 | Neue Pakete im Plugin `action-invoice`: `sqlalchemy` (ORM, parametrisiertes SQL), `jinja2` (Template mit Autoescape), `weasyprint` (PDF, braucht Pango), `pydantic`, `pydantic-settings`, dev: `pytest`, `mypy`; Frontend dev: `vitest` | Playbook-Standardstack (SQLAlchemy, Pydantic); Jinja2/WeasyPrint laut Projektplan 3.4; vitest testet die UI-Logik. Namen und Maintainer über `uv add`/`npm view` geprüft, `pip-audit` und `npm audit --omit=dev` ohne Funde |
 | 2026-10-04 | Abweichung vom Plan: keine Tool-`preview_invoice`; die Vorschau zeigt das UI aus den serverseitig berechneten Werten des gespeicherten Entwurfs | Ein PDF-Entwurf ohne Nummer wäre irreführend; das endgültige PDF entsteht erst beim Ausstellen |
 | 2026-10-04 | Schritte "Ausstellen" und "PDF" in einem Commit | Ausstellen erzeugt das PDF in derselben Transaktion (keine Nummernlücke bei Renderfehlern) |
