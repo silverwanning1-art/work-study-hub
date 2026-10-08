@@ -51,16 +51,26 @@ export async function callTool<T>(
 	return parse<T>(await post(`/api/plugins/${PLUGIN}/tools/${tool}/call`, { arguments: args }, fetchFn));
 }
 
-/** Ask the core to run a writing tool. Nothing happens until `confirm` is called with the id. */
-export async function requestWrite(
+/** Ask the core to run a writing tool of any plugin. Nothing happens until `confirm` is called. */
+export async function requestPluginWrite(
+	plugin: string,
 	tool: string,
 	args: Record<string, unknown>,
 	fetchFn: typeof fetch = fetch
 ): Promise<string> {
-	const response = await post(`/api/plugins/${PLUGIN}/tools/${tool}/call`, { arguments: args }, fetchFn);
+	const response = await post(`/api/plugins/${plugin}/tools/${tool}/call`, { arguments: args }, fetchFn);
 	if (response.status !== 202) throw new ApiError(`Anfrage fehlgeschlagen (${response.status}).`);
 	const body = (await response.json()) as { confirmation_id: string };
 	return body.confirmation_id;
+}
+
+/** Ask the core to run a writing tool of the invoice plugin. */
+export function requestWrite(
+	tool: string,
+	args: Record<string, unknown>,
+	fetchFn: typeof fetch = fetch
+): Promise<string> {
+	return requestPluginWrite(PLUGIN, tool, args, fetchFn);
 }
 
 /** Run a previously requested writing call after the user confirmed it. */
