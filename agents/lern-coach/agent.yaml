@@ -1,0 +1,11 @@
+id: lern-coach
+description: Lernbegleiter für das Studium; beantwortet Fachfragen aus Skripten und Vault mit Quellen
+model: claude-sonnet-5-5
+prompt: prompt.md
+tools:
+  - source-rag.search
+  - source-vault.search
+  - source-vault.read_note
+  - source-vault.list_notes
+channels: [web]
+workspaces: [studium]

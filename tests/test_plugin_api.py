@@ -153,3 +153,58 @@ def test_invoice_pdf_missing_gives_404(invoice_client: TestClient) -> None:
 
 def test_invoice_pdf_without_plugin_gives_404(client: TestClient) -> None:
     assert client.get("/api/invoices/2/pdf").status_code == 404
+
+
+class StubRuntime:
+    """Stands in for the agent runtime in endpoint tests."""
+
+    async def chat(self, agent_id: str, messages: list[Any]) -> Any:
+        from hub.agent_runtime import AgentError, ChatResult, UnknownAgentError
+
+        if agent_id == "ghost":
+            raise UnknownAgentError(agent_id)
+        if agent_id == "broken":
+            raise AgentError("boom")
+        return ChatResult(answer=f"echo: {messages[-1].content}")
+
+
+@pytest.fixture
+def chat_client() -> Iterator[TestClient]:
+    main.app.dependency_overrides[main.get_runtime] = lambda: StubRuntime()
+    yield TestClient(main.app)
+    main.app.dependency_overrides.clear()
+
+
+def test_chat_returns_answer(chat_client: TestClient) -> None:
+    response = chat_client.post(
+        "/api/agents/lern-coach/chat", json={"messages": [{"role": "user", "content": "Hi"}]}
+    )
+    assert response.status_code == 200
+    assert response.json()["answer"] == "echo: Hi"
+
+
+@pytest.mark.parametrize(
+    ("agent", "messages", "status"),
+    [
+        ("ghost", [{"role": "user", "content": "x"}], 404),
+        ("broken", [{"role": "user", "content": "x"}], 502),
+        ("lern-coach", [{"role": "assistant", "content": "x"}], 422),
+        ("lern-coach", [], 422),
+        ("lern-coach", [{"role": "system", "content": "x"}], 422),
+        ("lern-coach", [{"role": "user", "content": "x" * 8001}], 422),
+    ],
+)
+def test_chat_rejects_bad_requests(
+    chat_client: TestClient, agent: str, messages: list[dict[str, str]], status: int
+) -> None:
+    response = chat_client.post(f"/api/agents/{agent}/chat", json={"messages": messages})
+    assert response.status_code == status
+
+
+def test_chat_without_api_key_is_503(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(main, "_runtime", None)
+    monkeypatch.setattr(main.settings, "anthropic_api_key", None)
+    response = TestClient(main.app).post(
+        "/api/agents/lern-coach/chat", json={"messages": [{"role": "user", "content": "x"}]}
+    )
+    assert response.status_code == 503

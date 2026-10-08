@@ -17,6 +17,8 @@ services:
     restart: unless-stopped
     environment:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      # Optional: without a key the agent chat answers 503. Never commit the real value.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     volumes:
       - ./plugins:/app/plugins:ro
       - ./agents:/app/agents:ro

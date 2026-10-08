@@ -7,17 +7,20 @@ import re
 import sys
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import JSONResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from hub import mcp_client
+from hub.agent_runtime import AgentError, AgentRuntime, ChatResult, Message, UnknownAgentError
 from hub.config import Settings
 from hub.confirmations import ConfirmationError, ConfirmationStore, TooManyPendingError
+from hub.llm import AnthropicLlm
 from hub.manifests import PluginManifest
 from hub.registry import Registry, load_registry
 
 settings = Settings()
+logger = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=settings.log_level)
 
 app = FastAPI(title="hub")
@@ -107,6 +110,45 @@ async def confirm_tool_call(confirmation_id: str) -> mcp_client.ToolResult:
         raise HTTPException(status_code=404, detail="Unknown or expired confirmation") from None
     plugin = _plugin_or_404(pending.plugin_id)
     return await _execute(plugin, pending.tool, pending.arguments)
+
+
+class ChatRequest(BaseModel):
+    """Body of an agent chat request; the UI sends the whole conversation."""
+
+    messages: list[Message] = Field(min_length=1, max_length=40)
+
+
+_runtime: AgentRuntime | None = None
+
+
+def get_runtime() -> AgentRuntime:
+    """Build the agent runtime once; fails with 503 while no API key is configured."""
+    global _runtime  # noqa: PLW0603 - lazily created singleton
+    if _runtime is None:
+        if settings.anthropic_api_key is None or not settings.anthropic_api_key.get_secret_value():
+            raise HTTPException(status_code=503, detail="Language model is not configured")
+        _runtime = AgentRuntime(
+            registry, settings.agents_dir, AnthropicLlm(settings.anthropic_api_key)
+        )
+    return _runtime
+
+
+@app.post("/api/agents/{agent_id}/chat")
+async def chat_with_agent(
+    agent_id: str,
+    body: ChatRequest,
+    runtime: AgentRuntime = Depends(get_runtime),  # noqa: B008
+) -> ChatResult:
+    """Run an agent on a conversation. The last message must come from the user."""
+    if body.messages[-1].role != "user":
+        raise HTTPException(status_code=422, detail="The last message must be from the user")
+    try:
+        return await runtime.chat(agent_id, body.messages)
+    except UnknownAgentError:
+        raise HTTPException(status_code=404, detail="Unknown agent") from None
+    except AgentError as exc:
+        logger.error("Agent %s failed: %s", agent_id, exc)
+        raise HTTPException(status_code=502, detail="The agent could not answer") from None
 
 
 INVOICE_PLUGIN_ID = "action-invoice"
