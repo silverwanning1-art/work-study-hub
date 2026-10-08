@@ -3,10 +3,13 @@
 The agent runtime only sees plain dicts, so tests can use a scripted fake.
 """
 
+import logging
 from typing import Any, Protocol
 
-from anthropic import APIError, AsyncAnthropic
+from anthropic import APIError, APIStatusError, AsyncAnthropic
 from pydantic import BaseModel, SecretStr
+
+logger = logging.getLogger(__name__)
 
 
 class LlmError(Exception):
@@ -61,7 +64,12 @@ class AnthropicLlm:
                 max_tokens=max_tokens,
             )
         except APIError as exc:
-            # Do not include the exception text: it may echo request details.
+            # Log only status and the API's own message (e.g. "credit balance is too low"); the
+            # exception text and request are not logged, and the key is never part of them.
+            if isinstance(exc, APIStatusError):
+                logger.error("Anthropic API error %s: %s", exc.status_code, exc.message)
+            else:
+                logger.error("Anthropic API error: %s", type(exc).__name__)
             raise LlmError(type(exc).__name__) from exc
         blocks: list[dict[str, Any]] = []
         for block in response.content:

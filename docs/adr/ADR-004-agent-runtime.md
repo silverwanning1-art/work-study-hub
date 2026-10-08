@@ -1,6 +1,6 @@
 # ADR-004: Agent-Runtime, Skills und Schreibverbot für Agenten
 
-Datum: 2026-10-08 · Status: vorgeschlagen
+Datum: 2026-10-08 · Status: angenommen
 
 ## Kontext
 
