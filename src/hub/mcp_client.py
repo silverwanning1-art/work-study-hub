@@ -21,6 +21,7 @@ class ToolInfo(BaseModel):
 
     name: str
     description: str | None = None
+    input_schema: dict[str, Any] = {}
 
 
 class ToolResult(BaseModel):
@@ -39,7 +40,10 @@ async def list_tools(url: str) -> list[ToolInfo]:
     except (OSError, TimeoutError, MCPError) as exc:
         logger.error("Listing tools at %s failed: %s", url, exc)
         raise PluginUnavailableError from exc
-    return [ToolInfo(name=t.name, description=t.description) for t in result.tools]
+    return [
+        ToolInfo(name=t.name, description=t.description, input_schema=t.input_schema)
+        for t in result.tools
+    ]
 
 
 async def call_tool(url: str, name: str, arguments: dict[str, Any]) -> ToolResult:

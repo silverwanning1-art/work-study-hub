@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,3 +14,4 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     plugins_dir: Path = Path("plugins")
     agents_dir: Path = Path("agents")
+    anthropic_api_key: SecretStr | None = None

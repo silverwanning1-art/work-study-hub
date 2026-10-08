@@ -10,12 +10,10 @@ interface ToolResult<T> {
 
 const PLUGIN = 'action-invoice';
 
-async function parse<T>(response: Response): Promise<T> {
+async function parse<T>(response: Response, unavailable = 'Das Rechnungs-Plugin ist nicht erreichbar.'): Promise<T> {
 	if (!response.ok) {
 		throw new ApiError(
-			response.status === 502
-				? 'Das Rechnungs-Plugin ist nicht erreichbar.'
-				: `Anfrage fehlgeschlagen (${response.status}).`
+			response.status === 502 ? unavailable : `Anfrage fehlgeschlagen (${response.status}).`
 		);
 	}
 	const result = (await response.json()) as ToolResult<T>;
@@ -33,7 +31,18 @@ function post(url: string, body?: unknown, fetchFn: typeof fetch = fetch): Promi
 	});
 }
 
-/** Call a non-writing tool and return its structured result. */
+/** Call a non-writing tool of any plugin and return its structured result. */
+export async function callPluginTool<T>(
+	plugin: string,
+	tool: string,
+	args: Record<string, unknown> = {},
+	fetchFn: typeof fetch = fetch
+): Promise<T> {
+	const response = await post(`/api/plugins/${plugin}/tools/${tool}/call`, { arguments: args }, fetchFn);
+	return parse<T>(response, `Das Plugin ${plugin} ist nicht erreichbar.`);
+}
+
+/** Call a non-writing tool of the invoice plugin and return its structured result. */
 export async function callTool<T>(
 	tool: string,
 	args: Record<string, unknown> = {},

@@ -1,0 +1,11 @@
+id: source-rag
+type: source
+version: 0.1.0
+description: Durchsucht die Vorlesungsskripte (RAG-Server) und liefert Textstellen mit Quelle und Seite
+workspaces: [studium]
+mcp:
+  url: http://source-rag:8000/mcp
+tools:
+  - name: search
+    writes: false
+secrets: []

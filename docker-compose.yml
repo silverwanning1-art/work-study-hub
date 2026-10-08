@@ -17,11 +17,15 @@ services:
     restart: unless-stopped
     environment:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      # Optional: without a key the agent chat answers 503. Never commit the real value.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     volumes:
       - ./plugins:/app/plugins:ro
       - ./agents:/app/agents:ro
     depends_on:
       - source-hello
+      - source-rag
+      - source-vault
       - action-invoice
 
   frontend:
@@ -31,6 +35,27 @@ services:
   source-hello:
     build: ./plugins/source-hello
     restart: unless-stopped
+
+  source-rag:
+    build: ./plugins/source-rag
+    restart: unless-stopped
+    environment:
+      # The RAG server runs on the host (launchd), not in this stack.
+      RAG_URL: ${RAG_URL:-http://host.docker.internal:5678}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  source-vault:
+    build: ./plugins/source-vault
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    environment:
+      VAULT_PATH: /vault
+      VAULT_NAME: ${VAULT_NAME:-WiIng-Vault}
+    volumes:
+      # ADR-003: the vault is mounted read-only; this plugin can never write to it.
+      - ${VAULT_DIR:-${HOME}/rag_studium/WiIng-Vault}:/vault:ro
 
   action-invoice:
     build: ./plugins/action-invoice

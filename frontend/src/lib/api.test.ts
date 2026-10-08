@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError, callTool, confirm, requestWrite } from './api';
+import { ApiError, callPluginTool, callTool, confirm, requestWrite } from './api';
 
 function respond(status: number, body: unknown): typeof fetch {
 	return vi.fn(async () => new Response(JSON.stringify(body), { status })) as unknown as typeof fetch;
@@ -39,5 +39,18 @@ describe('writing tools', () => {
 	it('confirm returns the result', async () => {
 		const fetchFn = respond(200, { text: [], structured: { number: '2026-0001' }, is_error: false });
 		expect(await confirm('abc', fetchFn)).toEqual({ number: '2026-0001' });
+	});
+});
+
+describe('callPluginTool', () => {
+	it('calls the given plugin and unwraps the structured result', async () => {
+		const fetchFn = respond(200, { text: [], structured: { result: ['a.md'] }, is_error: false });
+		expect(await callPluginTool('source-vault', 'list_notes', {}, fetchFn)).toEqual({ result: ['a.md'] });
+		const url = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(url).toBe('/api/plugins/source-vault/tools/list_notes/call');
+	});
+
+	it('names the unreachable plugin', async () => {
+		await expect(callPluginTool('source-vault', 'search', {}, respond(502, {}))).rejects.toThrow(/source-vault/);
 	});
 });
