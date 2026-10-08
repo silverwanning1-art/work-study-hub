@@ -1,6 +1,6 @@
 # ADR-003: Obsidian-Vault als eigener read-only MCP-Server
 
-Datum: 2026-10-08 · Status: vorgeschlagen
+Datum: 2026-10-08 · Status: angenommen
 
 ## Kontext
 
