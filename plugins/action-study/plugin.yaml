@@ -1,7 +1,7 @@
 id: action-study
 type: action
 version: 0.1.0
-description: Karteikarten mit Lernfortschritt (Spaced Repetition)
+description: Karteikarten, Prof-Profile und Probeprüfungen mit Lernfortschritt
 workspaces: [studium]
 mcp:
   url: http://action-study:8000/mcp
@@ -13,10 +13,29 @@ tools:
   # Only updates the personal learning state in this plugin's own database and is not in any
   # agent allowlist, so it needs no confirmation per card (ADR-004).
   - name: rate_card
+  # Personal learning data the user enters in the UI; never in an agent allowlist (ADR-004).
+  - name: list_profiles
+  - name: save_profile
+  - name: list_exams
+  - name: get_exam
+  - name: start_attempt
+  - name: get_attempt
+  - name: list_attempts
+  - name: save_answer
+  - name: save_grading
   - name: save_cards
     writes: true
     requires_confirmation: true
   - name: delete_deck
+    writes: true
+    requires_confirmation: true
+  - name: save_exam
+    writes: true
+    requires_confirmation: true
+  - name: delete_exam
+    writes: true
+    requires_confirmation: true
+  - name: delete_profile
     writes: true
     requires_confirmation: true
 secrets: []

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { ApiError, callPluginTool, confirm as confirmWrite, requestPluginWrite } from '$lib/api';
 	import { ChatError } from '$lib/chat';
 	import {
@@ -51,7 +52,12 @@
 		}
 	}
 
-	onMount(refresh);
+	onMount(() => {
+		// Arrives from the exam result with a weak topic to practise.
+		const fromResult = page.url.searchParams.get('topic');
+		if (fromResult) topic = fromResult.slice(0, 200);
+		refresh();
+	});
 
 	async function generate() {
 		if (topic.trim() === '' || busy) return;
