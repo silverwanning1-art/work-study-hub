@@ -4,6 +4,9 @@ Kurz festhalten: Was wurde entschieden, warum? Neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-09 | Branch `feat/exams` für Issue #10, aufbauend auf `feat/flashcards` (PR #9 offen). Keine neuen Abhängigkeiten | Paket 2c braucht Plugin und UI aus 2b |
+| 2026-10-09 | Abweichung vom Plan: Bewertung und Prüfungserzeugung laufen über den bestehenden Chat-Endpoint, die Oberfläche validiert die Antwort und speichert sie über Plugin-Tools; kein eigener Endpoint `/api/attempts/{id}/grade` im Kern | Der Kern bleibt zustandslos und unverändert. Die Grenzen (Punkte höchstens wie in der Frage, alles oder nichts) erzwingt das Plugin |
+| 2026-10-09 | `save_profile`, `start_attempt`, `save_answer`, `save_grading`, `get_*`, `list_*` ohne Bestätigung; `save_exam`, `delete_exam`, `delete_profile` mit Bestätigung (ADR-004, ergänzt) | Persönlicher Lernzustand, den der Nutzer selbst in der Oberfläche eingibt; kein Tool steht in einer Agent-Allowlist |
 | 2026-10-09 | Neues Plugin `action-study`: `sqlalchemy`, `pydantic`, `pydantic-settings`, `mcp` (wie `action-invoice`), dev: `mypy`, `pytest`, `pyyaml` (Test prüft `plugin.yaml` gegen die Server-Tools). Abweichung vom Plan: der Lernzustand (fällig, Intervall, Faktor) liegt direkt auf der Karte statt in einer Tabelle `CardState` | Playbook-Standardstack; eine Tabelle weniger, keine 1:1-Beziehung. Namen über `uv add` aufgelöst |
 | 2026-10-09 | `rate_card` ist als `writes: false` deklariert (Ausnahme, ADR-004) | Sonst Bestätigungsdialog pro Karte; Tool steht in keiner Agent-Allowlist |
 | 2026-10-09 | Branch `feat/flashcards` für Issue #8, aufbauend auf `feat/studium-workspace` (PR #7 noch offen) | Paket 2b braucht die Agent-Runtime aus 2a |

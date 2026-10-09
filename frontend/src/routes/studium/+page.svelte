@@ -23,6 +23,8 @@
 <nav aria-label="Studium">
 	<a href="/studium/chat">Lern-Coach</a> |
 	<a href="/studium/karteikarten">Karteikarten</a> |
+	<a href="/studium/pruefungen">Prüfungen</a> |
+	<a href="/studium/profile">Prof-Profile</a> |
 	<a href="/studium/vault">Vault</a>
 </nav>
 {#if failed}

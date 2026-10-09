@@ -64,3 +64,99 @@ class ReviewLog(Base):
     interval_after: Mapped[int]
 
     card: Mapped[Card] = relationship(back_populates="reviews")
+
+
+class ProfProfile(Base):
+    """Description of a professor's examination style, used to generate mock exams."""
+
+    __tablename__ = "prof_profile"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(200), unique=True)
+    subject: Mapped[str] = mapped_column(String(200), default="")
+    description: Mapped[str] = mapped_column(Text, default="")
+    question_style: Mapped[str] = mapped_column(Text, default="")
+    share_mc: Mapped[int] = mapped_column(default=40)
+    share_open: Mapped[int] = mapped_column(default=40)
+    share_calc: Mapped[int] = mapped_column(default=20)
+    difficulty: Mapped[int] = mapped_column(default=3)
+    notes: Mapped[str] = mapped_column(Text, default="")
+
+
+class Exam(Base):
+    """A mock exam made of questions."""
+
+    __tablename__ = "exam"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    subject: Mapped[str] = mapped_column(String(200), default="")
+    profile_id: Mapped[int | None] = mapped_column(
+        ForeignKey("prof_profile.id", ondelete="SET NULL"), default=None
+    )
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
+
+    questions: Mapped[list["ExamQuestion"]] = relationship(
+        back_populates="exam",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="ExamQuestion.position",
+    )
+    attempts: Mapped[list["ExamAttempt"]] = relationship(
+        back_populates="exam", cascade="all, delete-orphan", passive_deletes=True
+    )
+
+
+class ExamQuestion(Base):
+    """One question; ``options`` is a JSON list for multiple choice and empty otherwise."""
+
+    __tablename__ = "exam_question"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    exam_id: Mapped[int] = mapped_column(ForeignKey("exam.id", ondelete="CASCADE"), index=True)
+    position: Mapped[int]
+    kind: Mapped[str] = mapped_column(String(10))
+    topic: Mapped[str] = mapped_column(String(300), default="")
+    prompt: Mapped[str] = mapped_column(Text)
+    options: Mapped[str] = mapped_column(Text, default="[]")
+    model_answer: Mapped[str] = mapped_column(Text)
+    points: Mapped[int]
+    source_citation: Mapped[str] = mapped_column(String(300), default="")
+
+    exam: Mapped[Exam] = relationship(back_populates="questions")
+
+
+class ExamAttempt(Base):
+    """One run through an exam, in mode ``schreiben`` (own answers) or ``abfrage`` (recall)."""
+
+    __tablename__ = "exam_attempt"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    exam_id: Mapped[int] = mapped_column(ForeignKey("exam.id", ondelete="CASCADE"), index=True)
+    mode: Mapped[str] = mapped_column(String(10))
+    started_at: Mapped[datetime] = mapped_column(default=datetime.now)
+
+    exam: Mapped[Exam] = relationship(back_populates="attempts")
+    answers: Mapped[list["AttemptAnswer"]] = relationship(
+        back_populates="attempt", cascade="all, delete-orphan", passive_deletes=True
+    )
+
+
+class AttemptAnswer(Base):
+    """The answer to one question: own text, self rating (0, 1, 2) and/or AI grading."""
+
+    __tablename__ = "attempt_answer"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    attempt_id: Mapped[int] = mapped_column(
+        ForeignKey("exam_attempt.id", ondelete="CASCADE"), index=True
+    )
+    question_id: Mapped[int] = mapped_column(
+        ForeignKey("exam_question.id", ondelete="CASCADE"), index=True
+    )
+    answer_text: Mapped[str] = mapped_column(Text, default="")
+    self_rating: Mapped[int | None] = mapped_column(default=None)
+    ai_points: Mapped[int | None] = mapped_column(default=None)
+    ai_feedback: Mapped[str] = mapped_column(Text, default="")
+
+    attempt: Mapped[ExamAttempt] = relationship(back_populates="answers")

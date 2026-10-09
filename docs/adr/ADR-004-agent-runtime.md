@@ -21,8 +21,8 @@ Der Hub braucht Agenten, die die Tools der Plugins benutzen (Projektplan, 3.3). 
 Tools, die nur den persönlichen Lernzustand fortschreiben, laufen ohne Bestätigungsdialog, weil sonst jede Karte einen Dialog auslöst. Sie sind in `plugin.yaml` als `writes: false` deklariert und stehen in **keiner** Agent-Allowlist.
 
 - Umgesetzt in Paket 2b: `action-study.rate_card` (ändert nur Fälligkeit, Intervall und Faktor einer Karte, schreibt einen Eintrag ins Bewertungsprotokoll).
-- Vorgesehen für 2c: `save_answer`.
-- Nicht betroffen und weiter mit Bestätigung: alles, was Inhalte anlegt oder löscht (`save_cards`, `delete_deck`).
+- Umgesetzt in Paket 2c: Profile und Durchführungen, die der Nutzer selbst in der Oberfläche anlegt oder ausfüllt, sowie die Bewertung der Antworten: `save_profile`, `start_attempt`, `save_answer`, `save_grading`. Die KI-Bewertung wird von der Oberfläche gespeichert, nicht vom Agenten. `save_grading` lehnt Punkte über dem Maximum der Frage ab und speichert alles oder nichts.
+- Nicht betroffen und weiter mit Bestätigung: alles, was Karten, Prüfungen oder Profile endgültig anlegt oder löscht (`save_cards`, `delete_deck`, `save_exam`, `delete_exam`, `delete_profile`).
 - Absicherung: ein Test prüft, dass `lern-coach` keine Tools von `action-study` in der Allowlist hat.
 
 ## Konsequenzen
