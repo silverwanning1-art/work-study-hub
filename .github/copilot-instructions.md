@@ -6,7 +6,7 @@ Die wichtigsten harten Regeln in Kurzform (falls AGENTS.md nicht geladen ist):
 
 - Python 3.12+, `uv`, `ruff`, `mypy`, `pytest`, FastAPI, Pydantic v2.
 - Erst Plan vorschlagen, dann in kleinen Schritten umsetzen. Nur den Auftrag umsetzen.
-- NIEMALS Secrets oder echte personenbezogene Daten in Code, Tests, Logs oder Commits. Konfiguration nur über Umgebungsvariablen, neue Variablen in `.env.example`.
+- NIEMALS Secrets oder echte personenbezogene Daten in Code, Tests, Logs oder Commits. Konfiguration nur über Umgebungsvariablen, neue Variablen in der README-Tabelle dokumentieren (keine `.env.example`).
 - Alle externen Eingaben validieren, SQL nur parametrisiert, kein `eval`/`exec`/`pickle`/`shell=True`.
 - Keine eigene Authentifizierung; Login kommt über SSO/Proxy.
 - NIEMALS direkt auf `main`. Conventional Commits auf Englisch. Mergen macht nie der Agent.

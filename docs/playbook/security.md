@@ -5,7 +5,7 @@ Ergänzt `AGENTS.md` Abschnitt 5. Leitgedanke: Das Playbook sorgt dafür, dass C
 ## Secrets
 
 - Konfiguration über `pydantic-settings`, Werte aus Umgebungsvariablen. Secrets als `SecretStr` typisieren, damit sie nicht versehentlich geloggt werden.
-- `.env` steht in `.gitignore`; `.env.example` enthält jede Variable mit Platzhalter, nie mit echtem Wert.
+- `.env` steht in `.gitignore`; Es gibt keine `.env.example`; Variablen stehen mit Beschreibung, nie mit Wert, in der Tabelle der `README.md`.
 - In Produktion kommen Secrets aus einem Secret-Store (z. B. Vault, Azure Key Vault), nicht aus Dateien im Repo.
 - Wird ein Secret im Code oder in der Git-Historie gefunden: sofort melden, Secret beim Anbieter rotieren, erst danach Historie bereinigen.
 

@@ -4,6 +4,7 @@ Kurz festhalten: Was wurde entschieden, warum? Neueste oben.
 
 | Datum | Entscheidung | Begründung |
 |---|---|---|
+| 2026-10-11 | Branch `docs/phase-2-documentation` für Issue #12, aufbauend auf `feat/exams`. Doku an Phase 2 angepasst; Verweise auf `.env.example` entfernt, Variablen stehen in der README-Tabelle | Silver hat `.env.example` bewusst gelöscht (die echte `.env` genügt); die Doku soll dem nicht widersprechen. Basis `feat/exams`, weil die Doku die offenen Pakete 2b/2c beschreibt |
 | 2026-10-09 | Branch `feat/exams` für Issue #10, aufbauend auf `feat/flashcards` (PR #9 offen). Keine neuen Abhängigkeiten | Paket 2c braucht Plugin und UI aus 2b |
 | 2026-10-09 | Abweichung vom Plan: Bewertung und Prüfungserzeugung laufen über den bestehenden Chat-Endpoint, die Oberfläche validiert die Antwort und speichert sie über Plugin-Tools; kein eigener Endpoint `/api/attempts/{id}/grade` im Kern | Der Kern bleibt zustandslos und unverändert. Die Grenzen (Punkte höchstens wie in der Frage, alles oder nichts) erzwingt das Plugin |
 | 2026-10-09 | `save_profile`, `start_attempt`, `save_answer`, `save_grading`, `get_*`, `list_*` ohne Bestätigung; `save_exam`, `delete_exam`, `delete_profile` mit Bestätigung (ADR-004, ergänzt) | Persönlicher Lernzustand, den der Nutzer selbst in der Oberfläche eingibt; kein Tool steht in einer Agent-Allowlist |
