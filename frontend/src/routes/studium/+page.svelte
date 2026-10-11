@@ -22,6 +22,7 @@
 <h2>Studium</h2>
 <nav aria-label="Studium">
 	<a href="/studium/chat">Lern-Coach</a> |
+	<a href="/studium/karteikarten">Karteikarten</a> |
 	<a href="/studium/vault">Vault</a>
 </nav>
 {#if failed}

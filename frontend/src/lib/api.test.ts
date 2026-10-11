@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError, callPluginTool, callTool, confirm, requestWrite } from './api';
+import { ApiError, callPluginTool, callTool, confirm, requestPluginWrite, requestWrite } from './api';
 
 function respond(status: number, body: unknown): typeof fetch {
 	return vi.fn(async () => new Response(JSON.stringify(body), { status })) as unknown as typeof fetch;
@@ -52,5 +52,18 @@ describe('callPluginTool', () => {
 
 	it('names the unreachable plugin', async () => {
 		await expect(callPluginTool('source-vault', 'search', {}, respond(502, {}))).rejects.toThrow(/source-vault/);
+	});
+});
+
+describe('requestPluginWrite', () => {
+	it('targets the given plugin and returns the confirmation id', async () => {
+		const fetchFn = respond(202, { confirmation_id: 'z' });
+		expect(await requestPluginWrite('action-study', 'save_cards', { a: 1 }, fetchFn)).toBe('z');
+		const url = (fetchFn as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0];
+		expect(url).toBe('/api/plugins/action-study/tools/save_cards/call');
+	});
+
+	it('refuses a response that executed immediately', async () => {
+		await expect(requestPluginWrite('action-study', 'save_cards', {}, respond(200, {}))).rejects.toThrow(ApiError);
 	});
 });

@@ -16,9 +16,14 @@ Der Hub braucht Agenten, die die Tools der Plugins benutzen (Projektplan, 3.3). 
 - Der Chat-Endpoint (`POST /api/agents/{id}/chat`) ist zustandslos: die UI sendet den Verlauf (höchstens 40 Nachrichten à 8000 Zeichen), die letzte Nachricht muss vom Nutzer sein.
 - Der API-Key kommt aus `ANTHROPIC_API_KEY` (`SecretStr`), nie aus dem Repo. Ohne Key antwortet der Chat mit 503.
 
-## Geplante Ausnahme (Paket 2b/2c, braucht eigene Freigabe)
+## Ausnahme vom Bestätigungsprinzip (Paket 2b/2c, braucht Freigabe)
 
-Tools, die nur den persönlichen Lernzustand fortschreiben (`rate_card`, `save_answer`), sollen ohne Bestätigungsdialog laufen, weil sonst jede Karte einen Dialog auslöst. Sie werden nicht in einer Agent-Allowlist stehen. Diese Ausnahme wird beim Bau von `action-study` hier ergänzt.
+Tools, die nur den persönlichen Lernzustand fortschreiben, laufen ohne Bestätigungsdialog, weil sonst jede Karte einen Dialog auslöst. Sie sind in `plugin.yaml` als `writes: false` deklariert und stehen in **keiner** Agent-Allowlist.
+
+- Umgesetzt in Paket 2b: `action-study.rate_card` (ändert nur Fälligkeit, Intervall und Faktor einer Karte, schreibt einen Eintrag ins Bewertungsprotokoll).
+- Vorgesehen für 2c: `save_answer`.
+- Nicht betroffen und weiter mit Bestätigung: alles, was Inhalte anlegt oder löscht (`save_cards`, `delete_deck`).
+- Absicherung: ein Test prüft, dass `lern-coach` keine Tools von `action-study` in der Allowlist hat.
 
 ## Konsequenzen
 
