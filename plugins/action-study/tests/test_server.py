@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any
 
+from action_study.exam_service import ExamService
 from action_study.server import build_server
 from action_study.service import StudyService
 from mcp import Client
@@ -13,7 +14,7 @@ CARD = {
 
 
 async def call(service: StudyService, tool: str, arguments: dict[str, Any]) -> Any:
-    async with Client(build_server(service)) as client:
+    async with Client(build_server(service, ExamService(service._sessions))) as client:  # noqa: SLF001
         return await client.call_tool(tool, arguments)
 
 
@@ -50,9 +51,9 @@ def test_manifest_matches_the_server(service: StudyService) -> None:
     manifest = yaml.safe_load((Path(__file__).parents[1] / "plugin.yaml").read_text())
 
     async def run() -> set[str]:
-        async with Client(build_server(service)) as client:
+        async with Client(build_server(service, ExamService(service._sessions))) as client:  # noqa: SLF001
             return {t.name for t in (await client.list_tools()).tools}
 
     assert {t["name"] for t in manifest["tools"]} == asyncio.run(run())
     writes = {t["name"] for t in manifest["tools"] if t.get("writes")}
-    assert writes == {"save_cards", "delete_deck"}
+    assert writes == {"save_cards", "delete_deck", "save_exam", "delete_exam", "delete_profile"}

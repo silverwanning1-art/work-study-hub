@@ -20,5 +20,8 @@ def test_lern_coach_has_no_study_database_tools() -> None:
 
 def test_lern_coach_skills_load() -> None:
     skills = load_skills(ROOT / "agents" / "lern-coach")
-    assert "karteikarten-erstellen" in skills
-    assert "```json" in skills["karteikarten-erstellen"].body
+    assert {"karteikarten-erstellen", "pruefung-nach-prof-profil", "antworten-bewerten"} <= set(
+        skills
+    )
+    for name in ("karteikarten-erstellen", "pruefung-nach-prof-profil", "antworten-bewerten"):
+        assert "```json" in skills[name].body

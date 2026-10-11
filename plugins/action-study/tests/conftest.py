@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 import pytest
 from action_study.db import init_db, make_engine
+from action_study.exam_service import ExamService
 from action_study.service import StudyService
 
 TODAY = date(2026, 11, 3)
@@ -28,3 +29,8 @@ def clock() -> Clock:
 @pytest.fixture
 def service(clock: Clock) -> StudyService:
     return StudyService(init_db(make_engine("sqlite://")), clock)
+
+
+@pytest.fixture
+def exams() -> ExamService:
+    return ExamService(init_db(make_engine("sqlite://")), Clock())
