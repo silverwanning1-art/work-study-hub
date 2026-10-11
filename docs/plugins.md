@@ -1,12 +1,24 @@
 # Plugins und Agenten hinzufügen
 
+## Vorhandene Plugins
+
+| Plugin | Typ | Zweck |
+|---|---|---|
+| `source-hello` | source | Beispiel und Vorlage |
+| `source-rag` | source | Suche im RAG-Server (Skripte) |
+| `source-vault` | source | Obsidian-Vault, nur lesend |
+| `action-invoice` | action | Rechnungen (Arbeit) |
+| `action-study` | action | Karteikarten, Prof-Profile, Prüfungen (Studium) |
+
+Details zum Studium-Workspace: `docs/studium.md`. Agenten und Skills: `docs/agents.md`.
+
 ## Neues Plugin (source/action)
 
 1. Ordner `plugins/<id>/` anlegen (Vorlage: `plugins/source-hello/`): MCP-Server, `Dockerfile`, eigene `pyproject.toml` und `uv.lock`, Tests.
 2. `plugins/<id>/plugin.yaml` schreiben. Die Ordner-`id` muss der `id` im Manifest entsprechen. Schema: `src/hub/manifests.py`.
 3. Service in `docker-compose.yml` ergänzen; die MCP-URL im Manifest nutzt den Service-Namen (`http://<id>:8000/mcp`).
 4. Schreibende Tools: `writes: true` und `requires_confirmation: true`.
-5. Secrets nur als Namen in `secrets:`, Werte in `.env` (Platzhalter in `.env.example`).
+5. Secrets nur als Namen in `secrets:`, Werte in `.env`, die Variable in der README-Tabelle beschreiben.
 
 ## Neuer Agent
 

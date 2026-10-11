@@ -54,7 +54,7 @@ tests/              # pytest-Tests, Struktur spiegelt src/
 docs/               # Doku, Entscheidungen, Playbook-Details
 pyproject.toml
 uv.lock
-.env.example        # alle Umgebungsvariablen mit Platzhaltern
+README.md            # Setup und Tabelle aller Umgebungsvariablen
 Dockerfile          # ab Stufe 2, Vorlage: docs/playbook/hosting.md
 README.md
 ```
@@ -70,7 +70,7 @@ Vor jedem Commit MÜSSEN Format, Lint, Typprüfung und Tests grün sein.
 
 ## 5. Security (NIEMALS verhandelbar)
 
-- **NIEMALS Secrets** (API-Keys, Passwörter, Tokens, Connection-Strings) in Code, Tests, Logs oder Commits. Konfiguration nur über Umgebungsvariablen; jede neue Variable mit Platzhalter in `.env.example`.
+- **NIEMALS Secrets** (API-Keys, Passwörter, Tokens, Connection-Strings) in Code, Tests, Logs oder Commits. Konfiguration nur über Umgebungsvariablen; jede neue Variable in der Tabelle der `README.md` dokumentieren (es gibt keine `.env.example`, die echte `.env` ist gitignored).
 - **NIEMALS echte personenbezogene Daten** in Code, Tests, Fixtures oder Beispieldateien. Nur synthetische Testdaten.
 - **Alle externen Eingaben validieren** (Pydantic-Modelle für Requests, Dateien, Umgebungsvariablen).
 - **SQL nur parametrisiert** bzw. über das ORM, nie per String-Zusammenbau.
@@ -132,7 +132,7 @@ Am Ende jeder Aufgabe diese Liste prüfen und das Ergebnis berichten:
 - [ ] Format, Lint, Typprüfung und Tests grün (tatsächlich ausgeführt)
 - [ ] Neue Logik ist getestet
 - [ ] Keine Secrets, keine echten personenbezogenen Daten
-- [ ] `.env.example` und `README.md` aktuell
+- [ ] `README.md` (Umgebungsvariablen) aktuell
 - [ ] Neue Abhängigkeiten begründet
 - [ ] Ab Stufe 2: Issue verknüpft, Risiko eingeschätzt
 - [ ] Zusammenfassung an den Nutzer: was geändert wurde, wie getestet, offene Punkte, Risiken

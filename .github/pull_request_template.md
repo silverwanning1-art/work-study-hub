@@ -27,7 +27,7 @@
 - [ ] Nur der Auftrag umgesetzt, keine ungefragten Zusatzänderungen
 - [ ] Neue Logik hat Tests
 - [ ] Keine Secrets, keine echten personenbezogenen Daten
-- [ ] `.env.example` und `README.md` aktuell
+- [ ] `README.md` (Umgebungsvariablen) aktuell
 - [ ] Neue Abhängigkeiten begründet (unten)
 
 ## Neue Abhängigkeiten
